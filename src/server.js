@@ -1,6 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const Utils = require('./utils')
+const config = require('./config')
 const app = express()
 const port = 3000
 
@@ -12,16 +13,16 @@ console.clear()
 app.post('/generate', (req, res) => {
     // Inputs
     const data = req.body
-    const groupId = data.groupId
-    const artifactId = data.artifactId
-    const description = data.description
-    const discord = data.discord
+    let groupId = data.groupId
+    let artifactId = data.artifactId
+    let description = data.description
+    let discord = data.discord
 
     // Defaults
-    if (groupId === '') groupId = 'com.github.valkyrienyanko'
-    if (artifactId === '') artifactId = 'Template'
-    if (description === '') description = 'A useful plugin..'
-    if (discord === '') discord = 'https://discord.gg/4afedcG'
+    if (groupId === '') groupId = config.defaults.groupId
+    if (artifactId === '') artifactId = config.defaults.artifactId
+    if (description === '') description = config.defaults.description
+    if (discord === '') discord = config.defaults.discord
 
     const groupIdArr = groupId.split('.')
 
