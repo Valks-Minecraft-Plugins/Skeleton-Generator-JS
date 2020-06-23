@@ -12,6 +12,53 @@ app.use(express.static('public'))
 
 console.clear()
 
+process.stdin.resume()
+process.stdin.setEncoding('utf8')
+
+process.stdin.on('data', function (text) {
+    const args = text.trim().split(' ').slice(1)
+    const cmd = text.trim().toLowerCase().split(' ')[0]
+    if (cmd === 'groupid') {
+        if (args.length < 1) {
+            console.log('Please specify a groupId')
+            return
+        }
+
+        groupId = args[0]
+        console.log(`Set groupId to ${args[0]}`)
+    }
+
+    if (cmd === 'artifactid') {
+        if (args.length < 1) {
+            console.log('Please specify a artifactId')
+            return
+        }
+
+        artifactId = args[0]
+        console.log(`Set artifactId to ${args[0]}`)
+    }
+
+    if (cmd === 'description') {
+        if (args.length < 1) {
+            console.log('Please specify a description')
+            return
+        }
+
+        description = args[0]
+        console.log(`Set description to ${args[0]}`)
+    }
+
+    if (cmd === 'discord') {
+        if (args.length < 1) {
+            console.log('Please specify a discord invite link')
+            return
+        }
+
+        discord = args[0]
+        console.log(`Set discord to ${args[0]}`)
+    }
+})
+
 let groupId, artifactId, description, discord
 
 app.post('/generate', async (req, res) => {
@@ -77,4 +124,9 @@ app.get('/generate', (req, res) => {
     })
 })
 
-app.listen(port, () => console.log(`Server listening at http://localhost:${port}`))
+app.listen(port, () => {
+    console.log(`Server listening at http://localhost:${port}`)
+    console.log()
+    console.log('The following values can be set manually via console: groupid, artifactid, description, discord')
+    console.log('')
+})
