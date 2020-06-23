@@ -10,6 +10,8 @@
     "start": "cd src && node server.js"
   },
   "devDependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "rimraf": "^3.0.2",
+    "zip-a-folder": "^0.0.12"
   }
 }

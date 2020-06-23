@@ -1,5 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const { zip } = require('zip-a-folder')
+const rimraf = require("rimraf")
 const Utils = require('./utils')
 const config = require('./config')
 const app = express()
@@ -10,13 +12,15 @@ app.use(express.static('public'))
 
 console.clear()
 
-app.post('/generate', (req, res) => {
+let groupId, artifactId, description, discord
+
+app.post('/generate', async (req, res) => {
     // Inputs
     const data = req.body
-    let groupId = data.groupId
-    let artifactId = data.artifactId
-    let description = data.description
-    let discord = data.discord
+    groupId = data.groupId
+    artifactId = data.artifactId
+    description = data.description
+    discord = data.discord
 
     // Defaults
     if (groupId === '') groupId = config.defaults.groupId
@@ -55,6 +59,22 @@ app.post('/generate', (req, res) => {
     Utils.createPluginYML(artifactId);
 
     console.log('Finished generating skeleton')
+
+    // Zip it
+    await zip(`../dist/${artifactId}`, `../dist/${artifactId}.zip`)
+    // Zip it again to zip root files in root dir
+    await zip(`../dist/${artifactId}`, `../dist/${artifactId}.zip`)
+
+    res.sendStatus(200) // 'OK'
+})
+
+app.get('/generate', (req, res) => {
+    res.download(`../dist/${artifactId}.zip`)
+
+    // Clean up (delete dist)
+    rimraf("../dist", () => {
+        console.log("Cleaned up")
+    })
 })
 
 app.listen(port, () => console.log(`Server listening at http://localhost:${port}`))

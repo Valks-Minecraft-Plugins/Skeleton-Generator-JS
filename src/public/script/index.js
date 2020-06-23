@@ -1,3 +1,5 @@
+let generating
+
 const elements = {
     groupId: id('group-id'),
     artifactId: id('artifact-id'),
@@ -7,14 +9,17 @@ const elements = {
 }
 
 elements.generate.addEventListener('click', () => {
+    if (generating) return 
+    generating = true
+
     axios.post('/generate', {
         groupId: elements.groupId.value,
         artifactId: elements.artifactId.value,
         description: elements.description.value,
         discord: elements.discord.value
     }).then((res) => {
-        const data = res.data
-    }).catch((err) => {
-        console.log(err)
-    })
+        if (res.data === 'OK') {
+            window.open('/generate')
+        }
+    }).catch((err) => console.log(err))
 })
