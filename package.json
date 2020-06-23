@@ -1,5 +1,5 @@
 {
-  "name": "Skeleton-Generator-JS",
+  "name": "skeleton-generator-js",
   "version": "1.0.0",
   "description": "Generates a skeleton for a mc plugin",
   "main": "index.js",
