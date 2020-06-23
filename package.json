@@ -1,0 +1,15 @@
+{
+  "name": "Skeleton-Generator-JS",
+  "version": "1.0.0",
+  "description": "Generates a skeleton for a mc plugin",
+  "main": "index.js",
+  "repository": "https://github.com/Valks-Minecraft-Plugins/Skeleton-Generator-JS.git",
+  "author": "valkyrienyanko",
+  "license": "MIT",
+  "scripts": {
+    "start": "cd src && node server.js"
+  },
+  "devDependencies": {
+    "express": "^4.17.1"
+  }
+}

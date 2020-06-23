@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <!--Meta-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!--Fonts-->
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100&display=swap" rel="stylesheet">
+
+    <!--Styles-->
+    <link rel="stylesheet" href="css/universal.css">
+    <link rel="stylesheet" href="css/index.css">
+
+    <!--Scripts-->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <div class="container center">
+        <div class="modal">
+            <h1>Generate Plugin Skeleton</h1>
+            <p id="serverMessage">Server Message</p>
+            <div class="form-container">
+                <div class="container-input" id="container-group-id">
+                    <input autofocus type="text" id="group-id" name="email" autocomplete="off" placeholder="Group ID" />
+                </div>
+                <div class="container-input" id="container-artifact-id">
+                    <input type="text" id="artifact-id" autocomplete="off" placeholder="Artifact ID" />
+                </div>
+                <div class="container-input" id="container-description">
+                    <input type="text" id="description" autocomplete="off" placeholder="Description" />
+                </div>
+                <div class="container-input" id="container-discord">
+                    <input type="text" id="discord" autocomplete="off" placeholder="Discord" />
+                </div>
+
+                <button id="generate">Generate</button>
+            </div>
+        </div>
+    </div>
+
+    <!--Scripts-->
+    <script src="script/utils.js"></script>
+    <script src="script/index.js"></script>
+</body>
+
+</html>
