@@ -80,36 +80,13 @@ app.post('/generate', async (req, res) => {
     // Generate skeleton
     console.log('Generating skeleton..')
 
-    // root
-    Utils.dir(`../dist`)
-    Utils.dir(`../dist/${artifactId}`)
-    Utils.dir(`../dist/${artifactId}/.github`)
-    Utils.createPomXML(groupId, artifactId)
-    Utils.createTemplateIML(artifactId)
-
-    // git
-    Utils.createReadme(artifactId, description, discord)
-    Utils.createContributing(artifactId)
-
-    // src
-    Utils.dir(`../dist/${artifactId}/src`)
-    Utils.dir(`../dist/${artifactId}/src/main`)
-    Utils.dir(`../dist/${artifactId}/src/main/java`)
-    Utils.dir(`../dist/${artifactId}/src/main/java/${groupIdArr[0]}`)
-    Utils.dir(`../dist/${artifactId}/src/main/java/${groupIdArr[0]}/${groupIdArr[1]}`)
-    Utils.dir(`../dist/${artifactId}/src/main/java/${groupIdArr[0]}/${groupIdArr[1]}/${groupIdArr[2]}`)
-    Utils.dir(`../dist/${artifactId}/src/main/java/${groupIdArr[0]}/${groupIdArr[1]}/${groupIdArr[2]}/${artifactId.toLowerCase()}`)
-    Utils.createTemplateJava(groupId, artifactId);
-
-    // Resources
-    Utils.dir(`../dist/${artifactId}/src/main/resources`)
-    Utils.createPluginYML(artifactId);
+    await Utils.prepareTemplate('template', groupId)
+    await Utils.copyTemplate('template', `../dist/${artifactId}`, { groupId, artifactId, description, discord })
 
     console.log('Finished generating skeleton')
 
-    // Zip it
+    // Zip it (we zip it twice to include root files)
     await zip(`../dist/${artifactId}`, `../dist/${artifactId}.zip`)
-    // Zip it again to zip root files in root dir
     await zip(`../dist/${artifactId}`, `../dist/${artifactId}.zip`)
 
     res.sendStatus(200) // 'OK'
@@ -118,10 +95,10 @@ app.post('/generate', async (req, res) => {
 app.get('/generate', (req, res) => {
     res.download(`../dist/${artifactId}.zip`)
 
-    // Clean up (delete dist)
-    rimraf("../dist", () => {
-        console.log("Cleaned up")
-    })
+    rimraf(`../dist`, () => {})
+    rimraf(`template/src/main/java/${groupId.split('.')[0]}`, () => {})
+
+    console.log('Cleaned up files, standing by to generate another skeleton!')
 })
 
 app.listen(port, () => {

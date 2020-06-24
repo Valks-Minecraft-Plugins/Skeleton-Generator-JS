@@ -1,143 +1,82 @@
 const fs = require('fs')
 const readline = require('readline')
+const ncp = require('ncp').ncp;
+const { promisify } = require('util')
+
+exports.prepareTemplate = async (src, groupId) => {
+    const elements = groupId.split('.')
+    let dest = `${src}/src/main/java/`
+    elements.forEach(element => {
+        dest += `${element}/`
+        this.dir(dest)
+    })
+
+    dest += 'template'
+    this.dir(dest)
+
+    await promisify(ncp)(`${src}/src/main/java/com/github/valkyrienyanko/template`, dest)
+}
+
+exports.copyTemplate = async (src, dest, values) => {
+    this.dir(`../dist`)
+    this.dir(dest)
+
+    const groupLabels = values.groupId.split('.')
+    const files = fs.readdirSync(src)
+    files.forEach(async file => {
+        const stats = fs.lstatSync(`${src}/${file}`)
+        if (stats.isDirectory()) {
+            let name = file
+            name = this.setPlaceholder(name, 'template', values.artifactId.toLowerCase())
+            if (file === 'com') return
+            this.dir(`${dest}/${name}`)
+
+            this.copyTemplate(`${src}/${file}`, `${dest}/${name}`, values)
+        } else {
+            const reader = fs.createReadStream(`${src}/${file}`)
+            const rl = readline.createInterface({
+                input: reader,
+                crlfDelay: Infinity
+            })
+
+            let data = []
+
+            for await (let line of rl) {
+                line = this.placeholder(line, 'com.github.valkyrienyanko', values.groupId)
+                line = this.placeholder(line, 'Template', values.artifactId)
+                line = this.placeholder(line, 'template', values.artifactId.toLowerCase())
+                line = this.placeholder(line, '%description%', values.description)
+                line = this.placeholder(line, '%discord%', values.discord)
+
+                data.push(line)
+            }
+
+            file = this.placeholder(file, 'Template', values.artifactId)
+            writeFile(`${dest}/${file}`, data)
+        }
+    })
+}
+
+exports.setPlaceholder = (string, placeholder, value) => {
+    if (string === placeholder) {
+        return string.replace(placeholder, value)
+    }
+
+    return string
+}
+
+exports.placeholder = (string, placeholder, value) => {
+    if (string.includes(placeholder)) {
+        return string.replace(placeholder, value)
+    }
+
+    return string
+}
 
 exports.dir = (path) => {
     if (!fs.existsSync(path)) {
         fs.mkdirSync(path)
     }
-}
-
-exports.createPomXML = async (groupId, artifactId) => {
-    let data = []
-    const reader = fs.createReadStream('template/pom.xml');
-
-    const rl = readline.createInterface({
-        input: reader,
-        crlfDelay: Infinity
-    })
-
-    for await (let line of rl) {
-        if (line.includes('<groupId>')) {
-            line = line.replace('%s', groupId)
-        }
-
-        if (line.includes('<artifactId>')) {
-            line = line.replace('%s', artifactId)
-        }
-
-        data.push(line)
-    }
-
-    writeFile(`../dist/${artifactId}/pom.xml`, data)
-}
-
-exports.createPluginYML = async (artifactId) => {
-    let data = []
-    const reader = fs.createReadStream('template/plugin.yml');
-
-    const rl = readline.createInterface({
-        input: reader,
-        crlfDelay: Infinity
-    })
-
-    for await (let line of rl) {
-        if (line.includes('name:')) {
-            line = line.replace('%s', artifactId)
-        }
-
-        if (line.includes('main:')) {
-            line = line.replace('%s1', artifactId.toLowerCase())
-            line = line.replace('%s2', artifactId)
-        }
-
-        data.push(line)
-    }
-
-    writeFile(`../dist/${artifactId}/src/main/resources/plugin.yml`, data)
-}
-
-exports.createTemplateJava = async (groupId, artifactId) => {
-    let data = []
-    const reader = fs.createReadStream('template/Template.java');
-
-    const rl = readline.createInterface({
-        input: reader,
-        crlfDelay: Infinity
-    })
-
-    for await (let line of rl) {
-        if (line.includes('package')) {
-            line = line.replace('%s', artifactId.toLowerCase())
-        }
-
-        if (line.includes('class')) {
-            line = line.replace('%s', artifactId)
-        }
-
-        data.push(line)
-    }
-
-    writeFile(`../dist/${artifactId}/src/main/java/${groupId.replace(/\./g, '/')}/${artifactId.toLowerCase()}/${artifactId}.java`, data)
-}
-
-exports.createTemplateIML = async (artifactId) => {
-    let data = []
-    const reader = fs.createReadStream('template/Template.iml');
-
-    const rl = readline.createInterface({
-        input: reader,
-        crlfDelay: Infinity
-    })
-
-    for await (let line of rl) {
-        data.push(line)
-    }
-
-    writeFile(`../dist/${artifactId}/${artifactId}.iml`, data)
-}
-
-exports.createReadme = async (artifactId, description, discord) => {
-    let data = []
-    const reader = fs.createReadStream('template/README.md');
-
-    const rl = readline.createInterface({
-        input: reader,
-        crlfDelay: Infinity
-    })
-
-    for await (let line of rl) {
-        if (line.includes('<!--Title-->')) {
-            line = line.replace('%s', artifactId)
-        }
-
-        if (line.includes('<!--Description-->')) {
-            line = line.replace('%s', description)
-        }
-
-        if (line.includes('<!--Discord-->')) {
-            line = line.replace('%s', discord)
-        }
-
-        data.push(line)
-    }
-
-    writeFile(`../dist/${artifactId}/.github/README.md`, data)
-}
-
-exports.createContributing = async (artifactId) => {
-    let data = []
-    const reader = fs.createReadStream('template/CONTRIBUTING.md');
-
-    const rl = readline.createInterface({
-        input: reader,
-        crlfDelay: Infinity
-    })
-
-    for await (let line of rl) {
-        data.push(line)
-    }
-
-    writeFile(`../dist/${artifactId}/.github/CONTRIBUTING.md`, data)
 }
 
 const writeFile = (name, data) => {

@@ -1,0 +1,9 @@
+name: Template
+version: "0.1"
+main: com.github.valkyrienyanko.template.Template
+commands:
+  help:
+    description: Displays helpful information.
+    aliases: [h]
+    permission: template.help
+    usage: Please simply type /help to display the help

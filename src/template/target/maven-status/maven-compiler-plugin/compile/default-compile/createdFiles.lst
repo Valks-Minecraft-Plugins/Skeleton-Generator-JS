@@ -1,0 +1,4 @@
+com\github\valkyrienyanko\template\commands\Cmd.class
+com\github\valkyrienyanko\template\Template.class
+com\github\valkyrienyanko\template\listeners\ListenerPlayerJoin.class
+com\github\valkyrienyanko\template\commands\CmdHelp.class
