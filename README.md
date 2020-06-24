@@ -1,4 +1,4 @@
-Generates the barebones skeleton of a Minecraft plugin given a groupId, artifactId, description and discord invite link.
+Generates the barebones skeleton of a Minecraft plugin given several inputs.
 
 Start server with `yarn start`, configure defaults in `config.js`.
 
