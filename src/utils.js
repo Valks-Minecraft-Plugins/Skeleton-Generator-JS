@@ -3,7 +3,7 @@ const readline = require('readline')
 const ncp = require('ncp').ncp;
 const { promisify } = require('util')
 
-exports.prepareTemplate = async (src, dest, values) => {
+exports.prepareTemplate = async (src, values) => {
     const groupLabels = values.groupId.split('.')
     let groupDest = `${src}/src/main/java/`
     groupLabels.forEach(element => {
@@ -15,7 +15,6 @@ exports.prepareTemplate = async (src, dest, values) => {
     this.dir(groupDest)
 
     await promisify(ncp)(`template/src/main/java/com/github/valkyrienyanko/template`, groupDest)
-    this.copyTemplate(src, dest, values)
 }
 
 exports.copyTemplate = async (src, dest, values) => {
@@ -28,8 +27,11 @@ exports.copyTemplate = async (src, dest, values) => {
         if (stats.isDirectory()) {
             let name = file
             name = this.setPlaceholder(name, 'template', values.artifactId.toLowerCase())
-            if (file === 'valkyrienyanko') return
-            this.dir(`${dest}/${name}`)
+            if (values.groupId === 'com.github.valkyrienyanko') {
+                this.dir(`${dest}/${name}`)
+            } else {
+                if (file === 'valkyrienyanko') return
+            }
 
             this.copyTemplate(`${src}/${file}`, `${dest}/${name}`, values)
         } else {

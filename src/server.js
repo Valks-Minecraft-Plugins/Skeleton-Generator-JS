@@ -80,9 +80,14 @@ app.post('/generate', async (req, res) => {
     // Generate skeleton
     console.log('Generating skeleton..')
 
-    await Utils.prepareTemplate('template', `../dist/${artifactId}`, {
+    const values = {
         groupId, artifactId, description, discord, version
-    })
+    }
+
+    if (groupId !== 'com.github.valkyrienyanko') {
+        await Utils.prepareTemplate('template', values)
+    }
+    Utils.copyTemplate('template', `../dist/${artifactId}`, values)
 
     // Zip it (we zip it twice to include root files)
     await zip(`../dist/${artifactId}`, `../dist/${artifactId}.zip`).then(() => { }).catch(err => console.log(err))
