@@ -6,7 +6,7 @@
 
     <groupId>com.github.valkyrienyanko</groupId>
     <artifactId>Template</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>%version%-SNAPSHOT</version>
 
     <repositories>
         <repository>

@@ -59,7 +59,7 @@ process.stdin.on('data', function (text) {
     }
 })
 
-let groupId, artifactId, description, discord
+let groupId, artifactId, description, discord, version
 
 app.post('/generate', async (req, res) => {
     // Inputs
@@ -68,26 +68,27 @@ app.post('/generate', async (req, res) => {
     artifactId = data.artifactId
     description = data.description
     discord = data.discord
+    version = data.version
 
     // Defaults
     if (groupId === '') groupId = config.defaults.groupId
     if (artifactId === '') artifactId = config.defaults.artifactId
     if (description === '') description = config.defaults.description
     if (discord === '') discord = config.defaults.discord
-
-    const groupIdArr = groupId.split('.')
+    if (version === '') version = config.defaults.version
 
     // Generate skeleton
     console.log('Generating skeleton..')
 
-    await Utils.prepareTemplate('template', groupId)
-    await Utils.copyTemplate('template', `../dist/${artifactId}`, { groupId, artifactId, description, discord })
-
-    console.log('Finished generating skeleton')
+    await Utils.prepareTemplate('template', `../dist/${artifactId}`, {
+        groupId, artifactId, description, discord, version
+    })
 
     // Zip it (we zip it twice to include root files)
-    await zip(`../dist/${artifactId}`, `../dist/${artifactId}.zip`)
-    await zip(`../dist/${artifactId}`, `../dist/${artifactId}.zip`)
+    await zip(`../dist/${artifactId}`, `../dist/${artifactId}.zip`).then(() => { }).catch(err => console.log(err))
+    await zip(`../dist/${artifactId}`, `../dist/${artifactId}.zip`).then(() => { }).catch(err => console.log(err))
+
+    console.log('Finished generating skeleton')
 
     res.sendStatus(200) // 'OK'
 })
@@ -95,11 +96,31 @@ app.post('/generate', async (req, res) => {
 app.get('/generate', (req, res) => {
     res.download(`../dist/${artifactId}.zip`)
 
-    rimraf(`../dist`, () => {})
-    rimraf(`template/src/main/java/${groupId.split('.')[0]}`, () => {})
+    rimraf(`../dist`, () => {
+        console.log('Cleaned up files, standing by to generate another skeleton!')
+    })
 
-    console.log('Cleaned up files, standing by to generate another skeleton!')
+    removeNonTemplateGroups(groupId.split('.'), 'template/src/main/java/')
 })
+
+const removeNonTemplateGroups = (labels, base) => {
+    if (labels.length == 0)
+        return // base condition
+
+    const path = base + labels.join('/') // construct new path
+
+    const top = labels[labels.length - 1]
+
+    if (top === 'valkyrienyanko' || top === 'github' || top === 'com') {
+        return
+    }
+
+    rimraf(path, () => { }) // remove
+
+    labels.pop() // remove last element from path
+
+    removeNonTemplateGroups(labels, base)
+}
 
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`)

@@ -3,32 +3,32 @@ const readline = require('readline')
 const ncp = require('ncp').ncp;
 const { promisify } = require('util')
 
-exports.prepareTemplate = async (src, groupId) => {
-    const elements = groupId.split('.')
-    let dest = `${src}/src/main/java/`
-    elements.forEach(element => {
-        dest += `${element}/`
-        this.dir(dest)
+exports.prepareTemplate = async (src, dest, values) => {
+    const groupLabels = values.groupId.split('.')
+    let groupDest = `${src}/src/main/java/`
+    groupLabels.forEach(element => {
+        groupDest += `${element}/`
+        this.dir(groupDest)
     })
 
-    dest += 'template'
-    this.dir(dest)
+    groupDest += 'template'
+    this.dir(groupDest)
 
-    await promisify(ncp)(`${src}/src/main/java/com/github/valkyrienyanko/template`, dest)
+    await promisify(ncp)(`template/src/main/java/com/github/valkyrienyanko/template`, groupDest)
+    this.copyTemplate(src, dest, values)
 }
 
 exports.copyTemplate = async (src, dest, values) => {
     this.dir(`../dist`)
     this.dir(dest)
 
-    const groupLabels = values.groupId.split('.')
     const files = fs.readdirSync(src)
     files.forEach(async file => {
         const stats = fs.lstatSync(`${src}/${file}`)
         if (stats.isDirectory()) {
             let name = file
             name = this.setPlaceholder(name, 'template', values.artifactId.toLowerCase())
-            if (file === 'com') return
+            if (file === 'valkyrienyanko') return
             this.dir(`${dest}/${name}`)
 
             this.copyTemplate(`${src}/${file}`, `${dest}/${name}`, values)
@@ -45,6 +45,7 @@ exports.copyTemplate = async (src, dest, values) => {
                 line = this.placeholder(line, 'com.github.valkyrienyanko', values.groupId)
                 line = this.placeholder(line, 'Template', values.artifactId)
                 line = this.placeholder(line, 'template', values.artifactId.toLowerCase())
+                line = this.placeholder(line, '%version%', values.version)
                 line = this.placeholder(line, '%description%', values.description)
                 line = this.placeholder(line, '%discord%', values.discord)
 
